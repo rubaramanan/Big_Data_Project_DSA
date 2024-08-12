@@ -1,0 +1,36 @@
+version: '3.0'
+
+networks:
+  dsa_net:
+    driver: bridge
+
+services:
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - '2181:2181'
+    networks:
+      - dsa_net
+
+  kafka:
+    image: 'bitnami/kafka:latest'
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://172.17.0.1:9092
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    ports:
+      - '9092:9092'
+    depends_on:
+      - zookeeper
+    networks:
+      - dsa_net
+
+
+volumes:
+  kafka_data:
+    driver: local
+  zookeeper_data:
+    driver: local
